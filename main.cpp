@@ -1,9 +1,11 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "julia.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-
+#define ITERATIONS 512
+const int PALETTE[] ={40,90,30};
 //HELP FUNCTIONS
 int main(int argc, char* argv[])
 {
@@ -29,17 +31,18 @@ int main(int argc, char* argv[])
     double real_part = 0;
     double imaginary_part = 0;
     double * current = &real_part;
+    double mouse_position_x = width/2;
+    double mouse_position_y = height/2;
+    double x_offset = 0;
+    double y_offset = 0;
+    double zoom =1.0;
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    std::cout<<"***********************************************************************************"<<std::endl;
-    std::cout<<"For help press 'H'"<<std::endl;
-    std::cout<<"***********************************************************************************"<<std::endl;
 
         for(int x = 0 ; x < width; x++){
             for(int y = 0; y < height; y++){
-                pixels[(y*width + x)*4] =      y;
-                pixels[(y*width + x)*4 + 1 ] = x;
-                pixels[(y*width + x)*4 + 2 ] = 0;
+                pixels[(y*width + x)*4] =      100;
+                pixels[(y*width + x)*4 + 1 ] = 100;
+                pixels[(y*width + x)*4 + 2 ] = 200;
                 pixels[(y*width + x)*4 + 3 ] = 255;
             }
         }
@@ -56,9 +59,23 @@ int main(int argc, char* argv[])
                 window.close();
             }
             if (event.type == sf::Event::MouseWheelScrolled){
+                /*if(event.mouseWheelScroll.delta>0){
+                    zoom *=1.01;
+                }else{
+                    zoom/=1.01;
+                }*/ 
+                mouse_position_x = event.mouseWheelScroll.x;
+                mouse_position_y = event.mouseWheelScroll.y;
+                x_offset += mouse_position_x/width;
+                y_offset += mouse_position_y/height;
+
+                std::cout<<"\n\n***********************************************************************************"<<std::endl;
                 std::cout << "wheel movement: " << event.mouseWheelScroll.delta << std::endl;
-                std::cout << "mouse x: " << event.mouseWheelScroll.x << std::endl;
-                std::cout << "mouse y: " << event.mouseWheelScroll.y << std::endl;
+                std::cout << "mouse x: " << mouse_position_x << std::endl;
+                std::cout << "mouse y: " << mouse_position_y << std::endl;
+                std::cout << "Offset of x : " << x_offset << std::endl;
+                std::cout << "Offset of y : " << y_offset << std::endl;
+                std::cout<<"***********************************************************************************"<<std::endl;
             }
             if (event.type == sf::Event::KeyPressed){
                 std::cout<<"\n\n***********************************************************************************"<<std::endl;
@@ -97,7 +114,31 @@ int main(int argc, char* argv[])
                     }
             }
         }
-
+        for(int y =0; y<height; y++){
+            for (int x = 0; x<width; x++){
+                double new_Re =1.0*x/ (zoom * width) + x_offset;
+                double new_Im =1.0*y/ (zoom * height) + y_offset;
+                int iterations;
+                for (iterations = 0; iterations< ITERATIONS; iterations++){
+                    double old_Re = new_Re;
+                    double old_Im = new_Im;
+                    new_Re = old_Re*old_Re - old_Im*old_Im +real_part;
+                    new_Im = 2*old_Re*old_Im +imaginary_part;
+                    //CHECKING IF WE REACHED 2
+                    if((new_Re*new_Re +new_Im*new_Im>4)){
+                        break;
+                    }
+                }
+                sf::Uint8 red = iterations * PALETTE[0] % 256;
+				sf::Uint8 green = iterations * PALETTE[1] % 256;
+				sf::Uint8 blue = iterations * PALETTE[2] % 256;
+                //COLOURING
+                pixels[(y*width + x)*4] =      red;
+                pixels[(y*width + x)*4 + 1 ] = blue;
+                pixels[(y*width + x)*4 + 2 ] = green;
+                pixels[(y*width + x)*4 + 3 ] = 255;
+            }
+        }
         //CREATING THE OUTPUT FROM THE ARRAY OF PIXELS
         image.create(width,height,pixels);
         texture.create(width,height);
