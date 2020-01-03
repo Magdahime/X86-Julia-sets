@@ -1,11 +1,12 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "julia.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #define ITERATIONS 512
-const int PALETTE[] ={40,90,30};
+int PALETTE[] ={40,90,30};
+
+extern "C" void juliafunc(double, double, double, unsigned char* pixels, int, int, int ,int *, double, double);
 //HELP FUNCTIONS
 int main(int argc, char* argv[])
 {
@@ -36,8 +37,8 @@ int main(int argc, char* argv[])
     double zoom =1.0;
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        for(int x = 0 ; x < width; x++){
-            for(int y = 0; y < height; y++){
+        for(unsigned int x = 0 ; x < width; x++){
+            for(unsigned int y = 0; y < height; y++){
                 pixels[(y*width + x)*4] =      100;
                 pixels[(y*width + x)*4 + 1 ] = 100;
                 pixels[(y*width + x)*4 + 2 ] = 200;
@@ -143,7 +144,7 @@ int main(int argc, char* argv[])
                     }
             }
         }
-
+/*
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     //JULIA
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +175,12 @@ int main(int argc, char* argv[])
         }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    */
+        //juliafunc(double real_part, double imagine_part, double zoom, unsigned char* pixels, int width, int height, int limit, int * palette, double x_offset_zoom, double y_offset_zoom);
+        double x_offset_zoom =x_offset/zoom;
+        double y_offset_zoom = y_offset/zoom;
+        juliafunc(real_part,imaginary_part,zoom,pixels,width,height,ITERATIONS,PALETTE,x_offset_zoom,y_offset_zoom);
+        
         //CREATING OUTPUT FROM THE ARRAY OF PIXELS
         image.create(width,height,pixels);
         texture.create(width,height);
