@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     // CREATING THE MAIN WINDOW
-    sf::RenderWindow window(sf::VideoMode(width, height,32), "Julia sets",sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(width, height,32), "Julia Explorer",sf::Style::Default);
     sf::Image image;
     sf::Texture texture;
     sf::Sprite sprite;
@@ -31,8 +31,6 @@ int main(int argc, char* argv[])
     double real_part = 0;
     double imaginary_part = 0;
     double * current = &real_part;
-    double mouse_position_x = width/2;
-    double mouse_position_y = height/2;
     double x_offset = 0;
     double y_offset = 0;
     double zoom =1.0;
@@ -58,66 +56,101 @@ int main(int argc, char* argv[])
                 std::cout<<"Bye :)"<<std::endl;
                 window.close();
             }
-            if (event.type == sf::Event::MouseWheelScrolled){
-                /*if(event.mouseWheelScroll.delta>0){
-                    zoom *=1.01;
-                }else{
-                    zoom/=1.01;
-                }*/ 
-                mouse_position_x = event.mouseWheelScroll.x;
-                mouse_position_y = event.mouseWheelScroll.y;
-                x_offset += mouse_position_x/width;
-                y_offset += mouse_position_y/height;
-
+            if (event.type == sf::Event::MouseButtonPressed){
                 std::cout<<"\n\n***********************************************************************************"<<std::endl;
-                std::cout << "wheel movement: " << event.mouseWheelScroll.delta << std::endl;
-                std::cout << "mouse x: " << mouse_position_x << std::endl;
-                std::cout << "mouse y: " << mouse_position_y << std::endl;
-                std::cout << "Offset of x : " << x_offset << std::endl;
-                std::cout << "Offset of y : " << y_offset << std::endl;
+                std::cout << "mouse x: " << event.mouseButton.x<< std::endl;
+                std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+                std::cout << "button: " << event.mouseButton.button << std::endl;
                 std::cout<<"***********************************************************************************"<<std::endl;
+                if(event.mouseButton.button == sf::Mouse::Button::Right){
+                    std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                    std::cout<<"You are now changing imaginary part."<<std::endl;
+                    std::cout<<"***********************************************************************************"<<std::endl;
+                    current=&imaginary_part;
+                }else if(event.mouseButton.button == sf::Mouse::Button::Left){
+                    std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                    std::cout<<"You are now changing real part."<<std::endl;
+                    std::cout<<"***********************************************************************************"<<std::endl;
+                    current=&real_part;
+                }
             }
-            if (event.type == sf::Event::KeyPressed){
+            if(event.type == sf::Event::MouseWheelScrolled){
+                if(event.mouseWheelScroll.delta>0){
+                    *current+=0.01;
+                }else{
+                    *current-=0.01;
+                }
                 std::cout<<"\n\n***********************************************************************************"<<std::endl;
                 std::cout<<"Current value of imaginary part: "<<imaginary_part<<std::endl;
                 std::cout<<"Current value of real part: "<<real_part<<std::endl;
                 std::cout<<"For help press 'H'"<<std::endl;
                 std::cout<<"***********************************************************************************"<<std::endl;
-
+            }
+            if (event.type == sf::Event::KeyPressed){
                     if(event.key.code == sf::Keyboard::H){
-
                         std::cout<<"\n\n\n\n***********************************************************************************"<<std::endl;
-                        std::cout<<"To switch between imaginary and real part ----> Arrow Right/Left"<<std::endl;
-                        std::cout<<"To increase the value of chosen part -----> Arrow Up"<<std::endl;
-                        std::cout<<"To decrease the value of chosen part -----> Arrow Down"<<std::endl;
-                        std::cout<<"To zoom in/out the picture ----> Scroll with mouse"<<std::endl;
+                        std::cout<<"To move picture around ----> Arrow Right/Left/Up/Down"<<std::endl;
+                        std::cout<<"To increase/decrease the value of chosen part -----> Scroll with mouse"<<std::endl;
+                        std::cout<<"To change the part -----> Press left or right button of the mouse"<<std::endl;
+                        std::cout<<"To zoom in/out the picture ----> Press Z/X"<<std::endl;
                         std::cout<<"***********************************************************************************"<<std::endl;
 
                     }else if(event.key.code == sf::Keyboard::Right){
-
-                        std::cout<<"\n\nChanging value of imaginary part."<<std::endl;
-                        current = &imaginary_part;
+                        x_offset+=0.01;
 
                     }else if(event.key.code == sf::Keyboard::Left){
-
-                        std::cout<<"\n\nChanging value of real part"<<std::endl;
-                        current = &real_part;
+                        x_offset-=0.01;
 
                     }else if(event.key.code == sf::Keyboard::Up){
-
-                        *current+=0.01;
+                        y_offset-=0.01;
                     
                     }else if(event.key.code == sf::Keyboard::Down){
+                        y_offset+=0.01;
                     
-                        *current-=0.01;
-                    
+                    }else if(event.key.code == sf::Keyboard::Z){
+                        zoom *= 1.1;
+
+                    }else if(event.key.code == sf::Keyboard::X){
+                        zoom /= 1.1;
+                    }
+            }
+            if (event.type == sf::Event::KeyReleased){
+
+                    if(event.key.code == sf::Keyboard::Right){
+                        std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                        std::cout<<"Moving picture to the right."<<std::endl;
+                        std::cout<<"***********************************************************************************"<<std::endl;
+                    }else if(event.key.code == sf::Keyboard::Left){
+                        std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                        std::cout<<"Moving picture to the left."<<std::endl;
+                        std::cout<<"***********************************************************************************"<<std::endl;
+                    }else if(event.key.code == sf::Keyboard::Up){
+                        std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                        std::cout<<"Lifting picture up."<<std::endl;
+                        std::cout<<"***********************************************************************************"<<std::endl;                   
+                    }else if(event.key.code == sf::Keyboard::Down){
+                        std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                        std::cout<<"Lowering picture down."<<std::endl;
+                        std::cout<<"***********************************************************************************"<<std::endl;
+                    }else if(event.key.code == sf::Keyboard::Z){  
+                        std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                        std::cout<<"Zooming in the picture."<<std::endl;
+                        std::cout<<"***********************************************************************************"<<std::endl;
+                    }else if(event.key.code == sf::Keyboard::X){
+                        std::cout<<"\n\n***********************************************************************************"<<std::endl;
+                        std::cout<<"Zooming out the picture."<<std::endl;
+                        std::cout<<"***********************************************************************************"<<std::endl;
                     }
             }
         }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //JULIA
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         for(int y =0; y<height; y++){
             for (int x = 0; x<width; x++){
-                double new_Re =1.0*x/ (zoom * width) + x_offset;
-                double new_Im =1.0*y/ (zoom * height) + y_offset;
+                double new_Re =x/ (zoom * width) + x_offset/zoom;
+                double new_Im =y/ (zoom * height) + y_offset/zoom;
                 int iterations;
                 for (iterations = 0; iterations< ITERATIONS; iterations++){
                     double old_Re = new_Re;
@@ -139,7 +172,9 @@ int main(int argc, char* argv[])
                 pixels[(y*width + x)*4 + 3 ] = 255;
             }
         }
-        //CREATING THE OUTPUT FROM THE ARRAY OF PIXELS
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //CREATING OUTPUT FROM THE ARRAY OF PIXELS
         image.create(width,height,pixels);
         texture.create(width,height);
         texture.update(image);
